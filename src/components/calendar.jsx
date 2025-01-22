@@ -1,21 +1,36 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, forwardRef, useImperativeHandle} from "react";
 
-export default function PrintCalender({year, month}){
-
+ const PrintCalender = forwardRef(({year, month, callBack}, ref)=>{
     const [days, setDays] = useState(GetMonthDays(year, month));
+    useImperativeHandle(ref, () =>({
+        updateDays: (selectMonth) =>{
+            setDays(GetMonthDays(selectMonth.year, selectMonth.month));
+        },
+    }));
+
+    const onDateInputChange=(e) =>{
+        callBack(e.target.value);
+    }
+
+    {/*function updateDays(){
+        setDays(GetMonthDays(year, month));
+    }
+
     useEffect(() => {
         setDays(GetMonthDays(year, month));
     });
+
+    */}
     return  (days.map((value, idx) =>(
-        <div className="flex-item-date" >
+        <div  key={idx} className="flex-item-date" >
             {value !=='' ? (
-                <input name='radioinput' type={"radio"}/>
-                ):null}
-            <label  key={idx}>{value}</label>
+                <input name='radioinput' value={value} type={"radio"} onChange={onDateInputChange}/>
+            ):null}
+            <label >{value}</label>
         </div>
 
-        )));
-}
+    )));
+})
 
 
 function GetMonthDays(year, month){
@@ -44,6 +59,7 @@ function GetLastDate(year, month){
     return lastDate[month - 1];
 }
 
+export  default  PrintCalender;
 
 
 

@@ -1,8 +1,21 @@
+.flex-container-tododetail{
+    display: flex;
+    flex-direction: column;
+    min-width: 370px;
+    text-align: right;
+}
 .flex-container-todolist{
     display: flex;
     flex-direction: column;
+    min-width: 370px;
+    text-align: left;
+    flex: 1;
 }
 
 .flex-item-todo{
+
+}
+
+.flex-item-btnbox{
 
 }

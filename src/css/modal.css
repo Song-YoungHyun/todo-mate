@@ -1,0 +1,13 @@
+.modal-backgraund{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: -1px;
+    top:-1px;
+    background: whitesmoke;
+    opacity: 0.5;
+
+}
+.model-box{
+
+}
