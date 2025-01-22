@@ -1,12 +1,16 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 
 export default function PrintCalender({year, month}){
 
     const [days, setDays] = useState(GetMonthDays(year, month));
-
+    useEffect(() => {
+        setDays(GetMonthDays(year, month));
+    });
     return  (days.map((value, idx) =>(
-        <div className="flex-item-date">
-            <input name='radioinput' type={"radio"}/>
+        <div className="flex-item-date" >
+            {value !=='' ? (
+                <input name='radioinput' type={"radio"}/>
+                ):null}
             <label  key={idx}>{value}</label>
         </div>
 
@@ -15,7 +19,6 @@ export default function PrintCalender({year, month}){
 
 
 function GetMonthDays(year, month){
-    var arrDayStr = ['일','월','화','수','목','금','토'];
     var days = [];
     var startDate = new Date(year, month-1, 1);
     var lastDate = GetLastDate(year, month);
