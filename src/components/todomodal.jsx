@@ -2,38 +2,45 @@ import {forwardRef, useState} from "react";
 import styled from 'styled-components';
 import '../css/modal.css';
 
-const TodoModal = forwardRef(({year, month, date}, ref)=>{
-  const [isVisible, setVisible] = useState(false);
+const TodoModal = forwardRef(({show, todo, changeShowModal, modalButtonClick}, ref)=>{
+  //const [isVisible, setVisible] = useState(show);
 
-  const onShowModalClick = (e) =>{
-      setVisible(true);
-  }
-
-  const onModalOverlayClick = (e) =>{
-      setVisible(false);
-  }
 
   const onTODOModifyClick = (e) =>{
-
+     if(modalButtonClick(true)){
+         changeShowModal(false);
+     }
   }
 
   const onTODODeleteClick = (e) =>{
-
+      if(modalButtonClick(false)){
+          changeShowModal(false);
+      }
   }
 
+  const onModplInputChang = (e) =>{
+        if(todo == undefined){
+            todo = new Object()
+            todo.key = 0;
+            todo.data = ''
+        }
+
+        todo.data = e.currentTarget.value;
+
+  }
 
 
     return(
         <div>
-            <button onClick={onShowModalClick}>메모</button>
-            <ModalOverlay visible={isVisible} onClick={onModalOverlayClick}>
+            <button onClick={() => changeShowModal(true)}>메모</button>
+            <ModalOverlay visible={show} onClick={() => changeShowModal(false)}>
                 <ModalInner  onClick={(e)=>{e.stopPropagation();}}>
                     <ModalButtonBox>
                         <ModalButton onClick={onTODOModifyClick}>수정</ModalButton>
                         <ModalButton onClick={onTODODeleteClick}>삭제</ModalButton>
                     </ModalButtonBox>
-                    <ModalInput/>
-
+                    {todo !== undefined ? (<ModalInput value={todo.data} onChange={onModplInputChang}/>)
+                                        : (<ModalInput onChange={onModplInputChang}/>)}
 
                 </ModalInner>
             </ModalOverlay>

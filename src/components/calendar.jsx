@@ -1,36 +1,25 @@
-import {useState, useEffect, forwardRef, useImperativeHandle} from "react";
 
- const PrintCalender = forwardRef(({year, month, callBack}, ref)=>{
-    const [days, setDays] = useState(GetMonthDays(year, month));
-    useImperativeHandle(ref, () =>({
-        updateDays: (selectMonth) =>{
-            setDays(GetMonthDays(selectMonth.year, selectMonth.month));
-        },
-    }));
-
+ export default function PrintCalender({selectDate, updateDate}){
     const onDateInputChange=(e) =>{
-        callBack(e.target.value);
+            updateDate(parseInt(e.target.value));
     }
 
-    {/*function updateDays(){
-        setDays(GetMonthDays(year, month));
+    function checkToday(value){
+        return value == selectDate.date;
     }
 
-    useEffect(() => {
-        setDays(GetMonthDays(year, month));
-    });
-
-    */}
-    return  (days.map((value, idx) =>(
+    return  (GetMonthDays(selectDate.year, selectDate.month).map((value, idx) =>(
         <div  key={idx} className="flex-item-date" >
-            {value !=='' ? (
-                <input name='radioinput' value={value} type={"radio"} onChange={onDateInputChange}/>
-            ):null}
+            {value !=='' ? (<input name='radioinput' value={value} type={"radio"} onChange={onDateInputChange} checked={checkToday(value)} />
+
+            ):(<></>)}
+
+
             <label >{value}</label>
         </div>
 
     )));
-})
+}
 
 
 function GetMonthDays(year, month){
@@ -58,8 +47,6 @@ function GetLastDate(year, month){
 
     return lastDate[month - 1];
 }
-
-export  default  PrintCalender;
 
 
 
