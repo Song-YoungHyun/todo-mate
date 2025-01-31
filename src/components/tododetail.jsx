@@ -14,21 +14,37 @@ export default function Tododetail({selectDate, updateTODOCount}) {
 
     },[selectDate]);
 
+
     const changeShowModal = (isShow, isNew = false) =>{
-        if(isNew)
+        if(isNew){
+
+            var data = getNewTempData(selectDate.year, selectDate.month, selectDate.date);
+
             setSelectTODO({
                 ...selectTODO,
                 key: 0,
-                data: ''
+                data: data
             });
+        }
+
         setShowModal(isShow);
+    }
+
+    const cancelMemo = () =>{
+
+
+       saveTempTODO(selectDate.year, selectDate.month, selectDate.date, selectTODO);
+
+        setShowModal(false)
     }
 
     const onTODORowClick = (e) =>{
 
+
+
         setSelectTODO({
             key : e.currentTarget.dataset.key,
-            data : e.currentTarget.dataset.todo
+            data : getTempData(selectDate.year, selectDate.month, selectDate.date, e.currentTarget.dataset.key)
         })
         e.stopPropagation()
         setShowModal(true);
@@ -55,7 +71,7 @@ export default function Tododetail({selectDate, updateTODOCount}) {
     const onModplInputChang = (e) =>{
 
 
-        setSelectTODO(
+        /*setSelectTODO(
             {
                 ...selectTODO,
                 key : selectTODO.key,
@@ -63,7 +79,7 @@ export default function Tododetail({selectDate, updateTODOCount}) {
         //      data : e.currentTarget.value
             }
         );
-
+*/
     }
 
     const onModalPaste = (e) => {
@@ -101,6 +117,14 @@ export default function Tododetail({selectDate, updateTODOCount}) {
                     img.src = base64;
                     //imgFileContainer.append(img);
 
+                 /*   setSelectTODO(
+                        {
+                            ...selectTODO,
+                            key : selectTODO.key,
+                            data : e.currentTarget.innerHTML
+                        }
+                    );
+*/
                 }
 
                 e.currentTarget.append(img);
@@ -120,6 +144,20 @@ export default function Tododetail({selectDate, updateTODOCount}) {
         updateTODOCheck(selectDate.year, selectDate.month, selectDate.date, key, checked);
         updateTODOCount(serchAllMonthTODO(selectDate.year, selectDate.month));
 
+    }
+
+    function onModalInputBlur(e){
+
+        console.log('Editor blur')
+
+       setSelectTODO(
+            {
+                ...selectTODO,
+                key : selectTODO.key,
+                data : e.currentTarget.innerHTML
+                //      data : e.currentTarget.value
+            }
+        );
     }
 
 
@@ -142,7 +180,7 @@ export default function Tododetail({selectDate, updateTODOCount}) {
         <div >
             {/*<TodoModal show={showModal} todo={selectTODO} changeShowModal={changeShowModal} modalButtonClick={modalBuutonClick} />*/}
             <div>
-                <ModalOverlay $visible={showModal} onClick={() => changeShowModal(false)}>
+                <ModalOverlay $visible={showModal} onClick={() => cancelMemo()}>
                     <ModalInner  onClick={(e)=>{e.stopPropagation();}}>
                         <ModalButtonBox>
                             {selectTODO.key !== 0 ? (<ModalButton onClick={() => {modalBuutonClick(true)}}>수정</ModalButton>)
@@ -150,7 +188,7 @@ export default function Tododetail({selectDate, updateTODOCount}) {
 
                             <ModalButton onClick={() => modalBuutonClick(false)}>삭제</ModalButton>
                         </ModalButtonBox>
-                        {selectTODO !== undefined ? (<ModalInput contentEditable="true" dangerouslySetInnerHTML={{ __html: selectTODO.data }} value={selectTODO.data} onInput={onModplInputChang} onPaste={onModalPaste}/>)
+                        {selectTODO !== undefined ? (<ModalInput contentEditable="true" onBlur={onModalInputBlur} dangerouslySetInnerHTML={{ __html: selectTODO.data }} value={selectTODO.data} onInput={onModplInputChang} onPaste={onModalPaste}/>)
                             : (<ModalInput contentEditable="true" onInput={onModplInputChang} onPaste={onModalPaste}></ModalInput>)}
                         {/*}   <div contentEditable="true" onDoubleClick={divtest}> type here
                             <img src="http://t2.gstatic.com/images?q=tbn:ANd9GcQCze-mfukcuvzKk7Ilj2zQ0CS6PbOkq7ZhRInnNd1Yz3TQzU4e&t=1" />
@@ -167,10 +205,113 @@ export default function Tododetail({selectDate, updateTODOCount}) {
 }
 
 
+function getNewTempData(year, month, date){
+    var idStr ='';
+    idStr = idStr.concat(year, String(month).padStart(2,0), date);
+    var todoList = new Object()
+    //localStorage.removeItem(idStr);
+    //createTestData(year,month,date);
+    if(localStorage.length > 0){
+
+        var localData = localStorage.getItem(idStr);
+        if(localData != null){
+            todoList = JSON.parse(localData);
+
+            if(todoList.temp != undefined)
+                return  todoList.temp;
+            else
+                return '';
+
+        }
+        else{
+
+            return ''
+        }
+    }
+    else{
+
+        return  '';
+    }
+
+}
+
+function getTempData(year, month, date, key){
+    var idStr ='';
+    var result = ''
+    idStr = idStr.concat(year, String(month).padStart(2,0), date);
+    var todoList = new Object()
+    //localStorage.removeItem(idStr);
+    //createTestData(year,month,date);
+    if(localStorage.length > 0){
+
+        var localData = localStorage.getItem(idStr);
+        if(localData != null){
+            todoList = JSON.parse(localData);
+
+            todoList.todos.every((item) => {
+                if(item.key == key){
+
+                    if(item.temp == undefined || item.temp == '') {
+                        result = item.data;
+                    }
+                    else{
+
+                        result = item.temp;
+                    }
 
 
 
-function addTODO(year, month, date, todo){
+
+                    return false;
+                }
+                else{
+                    return  true;
+                }
+            })
+
+
+        }
+
+    }
+
+    return  result
+}
+function saveTempTODO(year, month, date, todo){
+    var idStr ='';
+    idStr = idStr.concat(year, String(month).padStart(2,0), date);
+
+    var todoList = new Object();
+    todoList.id = idStr;
+    todoList.todos = getDateTODOList(year, month, date);
+
+    if(todo.key == 0){
+        todoList.temp = todo.data;
+
+    }
+    else{
+        todoList.todos.every((item) => {
+            if(item.key == todo.key){
+                item.temp = todo.temp || todo.data;
+
+
+
+                return false;
+            }
+            else{
+                return  true;
+            }
+        })
+
+
+    }
+
+
+    localStorage.setItem(idStr, JSON.stringify(todoList));
+
+    return true;
+}
+
+function addTODO(year, month, date, todo, cancel = false){
     var idStr ='';
     idStr = idStr.concat(year, String(month).padStart(2,0), date);
 
@@ -187,6 +328,14 @@ function addTODO(year, month, date, todo){
         todo.key =  idStr + nowTime;
         todo.checked = false;
 
+        if(cancel){
+            todo.temp = todo.data;
+            todo.data = '';
+        }
+        else{
+            todo.data =  todo.temp ;
+            todo.temp = ''
+        }
 
 
         todoList.todos.push(todo);
@@ -194,7 +343,9 @@ function addTODO(year, month, date, todo){
     else{
        todoList.todos.every((item) => {
             if(item.key == todo.key){
-                item.data = todo.data;
+                item.data = todo.temp || todo.data;
+                item.temp = '';
+
 
                 return false;
             }
