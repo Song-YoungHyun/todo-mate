@@ -54,14 +54,59 @@ export default function Tododetail({selectDate, updateTODOCount}) {
 
     const onModplInputChang = (e) =>{
 
+
         setSelectTODO(
             {
                 ...selectTODO,
                 key : selectTODO.key,
-                data : e.currentTarget.value
+                data : e.currentTarget.innerHTML
+        //      data : e.currentTarget.value
             }
         );
 
+    }
+
+    const onModalPaste = (e) => {
+
+        e.stopPropagation();
+        e.preventDefault();
+
+       // clipboardData = e.clipboardData || window.clipboardData;
+       // pastedData = clipboardData.getData('Text');
+
+        for (const clipboardItem of e.clipboardData.files) {
+            if (clipboardItem.type.startsWith('image/')) {
+                console.log(clipboardItem);
+
+
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(clipboardItem);
+                img.height = 30;
+               // img.width = 30;
+
+                img.onload = function (e) {
+                    // Create canvas
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const scaleFactor = 30 / img.height;
+                    // Set width and height
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    // Draw the image
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    var base64 = canvas.toDataURL('image/*');
+                    var strImage = base64.replace(/^data:image\/[a-z]+;base64,/, "");
+
+                    img.src = base64;
+                    //imgFileContainer.append(img);
+
+                }
+
+                e.currentTarget.append(img);
+
+            }
+        }
     }
 
     function divtest(e){
@@ -81,9 +126,14 @@ export default function Tododetail({selectDate, updateTODOCount}) {
     return  <div className="flex-container-tododetail">
         <div className="flex-container-todolist">
             { (getDateTODOList(selectDate.year, selectDate.month, selectDate.date).map((value, idx) => (
-                <TODORow key={idx} data={value.data} >
+                <TODORow key={idx}  >
                     <input  data-key={value.key} type={"checkbox"} checked={value.checked} onChange={onTODOCheckChange} onClick={(e)=>{e.stopPropagation();}}/>
-                    <TODOLabel onClick={onTODORowClick} data-todo={value.data} data-key={value.key}>{value.data}</TODOLabel>
+                    <TODODiv onClick={onTODORowClick} data-todo={value.data} data-key={value.key} dangerouslySetInnerHTML={{ __html: value.data }}>
+
+                    </TODODiv>
+
+
+                    {/*<TODOLabel onClick={onTODORowClick} data-todo={value.data} data-key={value.key}>{value.data}</TODOLabel>*/}
 
                 </TODORow>
 
@@ -100,8 +150,8 @@ export default function Tododetail({selectDate, updateTODOCount}) {
 
                             <ModalButton onClick={() => modalBuutonClick(false)}>삭제</ModalButton>
                         </ModalButtonBox>
-                        {selectTODO !== undefined ? (<ModalInput value={selectTODO.data} onChange={onModplInputChang}/>)
-                            : (<ModalInput onChange={onModplInputChang}/>)}
+                        {selectTODO !== undefined ? (<ModalInput contentEditable="true" dangerouslySetInnerHTML={{ __html: selectTODO.data }} value={selectTODO.data} onInput={onModplInputChang} onPaste={onModalPaste}/>)
+                            : (<ModalInput contentEditable="true" onInput={onModplInputChang} onPaste={onModalPaste}></ModalInput>)}
                         {/*}   <div contentEditable="true" onDoubleClick={divtest}> type here
                             <img src="http://t2.gstatic.com/images?q=tbn:ANd9GcQCze-mfukcuvzKk7Ilj2zQ0CS6PbOkq7ZhRInnNd1Yz3TQzU4e&t=1" />
                         </div>*/}
@@ -115,6 +165,8 @@ export default function Tododetail({selectDate, updateTODOCount}) {
 
 
 }
+
+
 
 
 
@@ -143,6 +195,7 @@ function addTODO(year, month, date, todo){
        todoList.todos.every((item) => {
             if(item.key == todo.key){
                 item.data = todo.data;
+
                 return false;
             }
             else{
@@ -301,6 +354,13 @@ const TODOLabel = styled.label`
     min-height: 24px;
 `
 
+const TODODiv = styled.div`
+    margin-left: 5px;
+    display: inline-block;
+    width: 90%;
+    min-height: 24px;
+`
+
 
 const ModalOverlay = styled.div`
   box-sizing: border-box;
@@ -339,9 +399,19 @@ const ModalButton = styled.button`
     margin: 3px;
     height: 60px;
 `
-
+const ModalInput = styled.div`
+    width: 100%;
+    height: 300px;
+    color: fieldtext;
+    display: inline-block;
+    text-align: start;
+    background-color: field;
+`
+/*
 const ModalInput = styled.textarea`
     width: 100%;
     height: 300px;
-    
+
 `
+
+ */
