@@ -6,7 +6,8 @@ import styled from "styled-components";
 export default function Tododetail({selectDate, updateTODOCount}) {
 
     const [showModal, setShowModal] = useState(false);
-    const [selectTODO, setSelectTODO] = useState({key : 0, data : ''});
+    const [selectTODO, setSelectTODO] = useState({key : 0, data : '', temp : ''});
+
 
     useEffect(() => {
         console.log('count update');
@@ -32,15 +33,12 @@ export default function Tododetail({selectDate, updateTODOCount}) {
 
     const cancelMemo = () =>{
 
-
        saveTempTODO(selectDate.year, selectDate.month, selectDate.date, selectTODO);
 
         setShowModal(false)
     }
 
     const onTODORowClick = (e) =>{
-
-
 
         setSelectTODO({
             key : e.currentTarget.dataset.key,
@@ -133,9 +131,6 @@ export default function Tododetail({selectDate, updateTODOCount}) {
         }
     }
 
-    function divtest(e){
-
-    }
 
     function onTODOCheckChange(e){
         var key = e.currentTarget.dataset.key;
@@ -154,7 +149,8 @@ export default function Tododetail({selectDate, updateTODOCount}) {
             {
                 ...selectTODO,
                 key : selectTODO.key,
-                data : e.currentTarget.innerHTML
+                data : e.currentTarget.innerHTML,
+                temp : e.currentTarget.innerHTML
                 //      data : e.currentTarget.value
             }
         );
